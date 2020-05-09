@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -32,14 +31,6 @@ namespace UniMissingScriptChecker
 		}
 
 		//================================================================================
-		// イベント(static)
-		//================================================================================
-		/// <summary>
-		/// Missing Script の情報をログ出力する時に呼び出されます
-		/// </summary>
-		public static event Action<MissingScriptData> OnLog;
-
-		//================================================================================
 		// 関数(static)
 		//================================================================================
 		/// <summary>
@@ -57,20 +48,23 @@ namespace UniMissingScriptChecker
 		{
 			if ( state != PlayModeStateChange.ExitingEditMode ) return;
 
+			var settings = MissingScriptCheckerSettings.LoadFromEditorPrefs();
+
+			if ( !settings.IsEnable ) return;
+
 			var list = Validate().ToArray();
 
 			if ( list.Length <= 0 ) return;
 
+			var logFormat = settings.LogFormat;
+
 			foreach ( var n in list )
 			{
-				if ( OnLog != null )
-				{
-					OnLog( n );
-				}
-				else
-				{
-					Debug.LogError( $"Missing Script が存在します：{n.GameObject.name}", n.GameObject );
-				}
+				var message = logFormat;
+				message = message.Replace( "[GameObjectName]", n.GameObject.name );
+				message = message.Replace( "[GameObjectRootPath]", GetRootPath( n.GameObject ) );
+
+				Debug.LogError( message, n.GameObject );
 			}
 
 			EditorApplication.isPlaying = false;
@@ -89,17 +83,31 @@ namespace UniMissingScriptChecker
 
 			foreach ( var gameObject in gameObjects )
 			{
-				var components = gameObject.GetComponents<Component>();
+				var count = GameObjectUtility.GetMonoBehavioursWithMissingScriptCount( gameObject );
 
-				foreach ( var component in components )
-				{
-					if ( component != null ) continue;
+				if ( count <= 0 ) continue;
 
-					var data = new MissingScriptData( gameObject );
+				var data = new MissingScriptData( gameObject );
 
-					yield return data;
-				}
+				yield return data;
 			}
+		}
+
+		/// <summary>
+		/// ゲームオブジェクトのルートからのパスを返します
+		/// </summary>
+		private static string GetRootPath( this GameObject gameObject )
+		{
+			var path   = gameObject.name;
+			var parent = gameObject.transform.parent;
+
+			while ( parent != null )
+			{
+				path   = parent.name + "/" + path;
+				parent = parent.parent;
+			}
+
+			return path;
 		}
 	}
 }
