@@ -19,7 +19,7 @@ namespace UniMissingScriptChecker
 		// 変数(SerializeField)
 		//================================================================================
 		[SerializeField] private bool   m_isEnable  = false;
-		[SerializeField] private string m_logFormat = "参照が設定されていません：[GameObjectRootPath]";
+		[SerializeField] private string m_logFormat = "Missing Script が存在します：[GameObjectRootPath]";
 
 		//================================================================================
 		// プロパティ
