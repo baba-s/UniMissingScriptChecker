@@ -8,24 +8,13 @@ Missing Script が存在したら Unity を再生できなくするエディタ�
 
 ![Image (17)](https://user-images.githubusercontent.com/6134875/81059033-9fb36300-8f0a-11ea-9077-d2688114bf98.gif)
 
-## ログ出力のカスタマイズ
+## 設定
 
-```cs
-using UniMissingScriptChecker;
-using UnityEditor;
-using UnityEngine;
+![2020-05-09_105815](https://user-images.githubusercontent.com/6134875/81461006-fdce9780-91e3-11ea-8f9b-71868e3d00c9.png)
 
-[InitializeOnLoad]
-public static class Example
-{
-    static Example()
-    {
-        MissingScriptChecker.OnLog += data =>
-        {
-            Debug.LogError( $"参照が設定されていません：{data.GameObject.name}", data.GameObject );
-        };
-    }
-}
-```
+Preferences から設定を変更できます  
 
-* Missing Script が存在する場合に出力されるログはカスタマイズできます  
+|項目|内容|
+|:--|:--|
+|Enabled|有効かどうか（デフォルトは OFF）|
+|Log Format|エラーログのフォーマット|
